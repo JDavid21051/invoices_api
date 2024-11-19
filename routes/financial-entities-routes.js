@@ -7,6 +7,8 @@ export const createFinancialEntitiesRouter = ({fEntitiesModel}) => {
 
     fEntitiesRouter.get('/', controller.getAll)
     fEntitiesRouter.post('/', controller.create)
+    fEntitiesRouter.delete('/:id', controller.delete)
+    fEntitiesRouter.patch('/:id', controller.update)
 
     return fEntitiesRouter
 }
