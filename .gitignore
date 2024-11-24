@@ -5,3 +5,4 @@ node_modules
 /queires/*
 /queires/fentities.http
 /.idea/
+.vercel
