@@ -1,10 +1,9 @@
 import {postgreSQLClient} from "../core/database/conection.js"
 import {
     ENTITIES_CREATE_ERROR,
-    ENTITIES_DELETE_ERROR,
     ENTITIES_LIST_ERROR
 } from "../core/errors/modelues/financial-entities.errors.js"
-import {getLocaleDateTime} from "../web/locale-date.js";
+import {getLocaleDateTime} from "../utils/locale-datetime.js";
 
 export class FinancialEntitiesModel {
     static async getAll() {
