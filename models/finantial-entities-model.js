@@ -5,7 +5,6 @@ import {
     ENTITIES_LIST_ERROR
 } from "../core/errors/modelues/financial-entities.errors.js"
 import {getLocaleDateTime} from "../web/locale-date.js";
-import {ObjectId} from "mongodb";
 
 export class FinancialEntitiesModel {
     static async getAll() {
@@ -17,6 +16,25 @@ export class FinancialEntitiesModel {
             throw new Error(ENTITIES_LIST_ERROR);
         }
     }
+
+    static async getById({id}) {
+        try {
+            console.log(id)
+            const entityName = 'financial_entity'
+            const query = `
+                SELECT *
+                FROM ${entityName}
+                WHERE id = $1`
+            console.log(query)
+
+            const result = await postgreSQLClient.query(query, [id])
+            console.log(result)
+            return result.rows[0] ?? {id}
+        } catch (error) {
+            throw new Error(ENTITIES_LIST_ERROR);
+        }
+    }
+
 
     static async create({input}) {
         try {
