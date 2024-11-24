@@ -9,8 +9,9 @@ export class FinancialEntitiesModel {
     static async getAll() {
         try {
             const entityName = 'financial_entity'
-            return await postgreSQLClient.query(`SELECT *
+            const result = await postgreSQLClient.query(`SELECT *
                                                  FROM ${entityName}`)
+            return result.rows ?? []
         } catch (error) {
             throw new Error(ENTITIES_LIST_ERROR);
         }
@@ -24,10 +25,7 @@ export class FinancialEntitiesModel {
                 SELECT *
                 FROM ${entityName}
                 WHERE id = $1`
-            console.log(query)
-
             const result = await postgreSQLClient.query(query, [id])
-            console.log(result)
             return result.rows[0] ?? {id}
         } catch (error) {
             throw new Error(ENTITIES_LIST_ERROR);
@@ -44,7 +42,6 @@ export class FinancialEntitiesModel {
                 VALUES ($1, $2, $3, $4) RETURNING *`
             const values = [name, nit, location, getLocaleDateTime()]
             const result = await postgreSQLClient.query(query, values)
-            console.log(result)
             return result.rows[0] ?? input
         } catch (error) {
             throw new Error(ENTITIES_CREATE_ERROR)

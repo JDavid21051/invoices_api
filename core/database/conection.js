@@ -3,6 +3,9 @@ const { Pool } = pkg;
 
 export const postgreSQLClient = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: {
+    require: true,
+  }
 });
 
 /*
