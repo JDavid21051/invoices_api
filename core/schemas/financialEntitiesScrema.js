@@ -29,10 +29,10 @@ const updateFESchema = z.object({
         required_error: 'id is required.'
     }),
     name: z.string({
-        invalid_type_error: 'Event title must be a string',
-        required_error: 'Event title is required.'
+        invalid_type_error: 'Financial entity name must be a string',
+        required_error: 'Financial entity title is required.'
     }).max(200, {
-        message: 'Event title must be at most 100 characters long',
+        message: 'Financial entity title must be at most 100 characters long',
     }),
     nit: z.string({
         invalid_type_error: 'NIT must be a string',

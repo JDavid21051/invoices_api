@@ -1,4 +1,4 @@
-import {isValidNumber, safeCreateFE, safeUpdateFE} from "../schemas/financialEntitiesScrema.js";
+import {isValidNumber, safeCreateFE, safeUpdateFE} from "../core/schemas/financialEntitiesScrema.js";
 import {
     ENTITIES_BAD_REQ,
     ENTITIES_ID_BAD_TYPE,

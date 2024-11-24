@@ -1,6 +1,8 @@
 import {createApp} from "../app.js";
 import {FinancialEntitiesModel} from "../models/finantial-entities-model.js";
+import {CategoriesModel} from "../models/parameters/categories-model.js";
 
 createApp({
-    financialEntitiesModel: FinancialEntitiesModel
+    financialEntitiesModel: FinancialEntitiesModel,
+    categoriesModel: CategoriesModel
 })
