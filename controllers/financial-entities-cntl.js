@@ -21,7 +21,6 @@ export class FinancialEntitiesController {
         if (params && params.id !== undefined && params.id !== null) {
             if (isValidNumber(params.id)) {
                 const result = await this.fEntityModel.getById({id: params.id})
-                console.log(result)
                 if (!result) return res.status(404).json({message: ENTITIES_GET_ERROR})
                 return res.json(result)
             } else {
@@ -58,7 +57,6 @@ export class FinancialEntitiesController {
     update = async (req, res) => {
         const result = safeUpdateFE(req.body)
 
-        console.log({result})
         if (!result.success || Object.keys(result.data).length === 0) {
             return res.status(400).json({message: ENTITIES_UPDATE_BAD_REQ})
         }

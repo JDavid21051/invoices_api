@@ -1,4 +1,3 @@
-import {safeCreateCategories} from "../core/schemas/categories.schema.js";
 import {safeCreateAccount} from "../core/schemas/accounts.schema.js";
 
 export class AccountsController {
@@ -10,7 +9,7 @@ export class AccountsController {
         const eventsList = await this.accountsModel.getAll()
         res.json(eventsList)
     }
-        create = async (req, res) => {
+    create = async (req, res) => {
         const result = safeCreateAccount(req.body)
         if (!result.success) return res.status(400).json({error: JSON.parse(result.error.message)})
         const newEvent = await this.accountsModel.create({input: result.data})

@@ -19,7 +19,6 @@ export class FinancialEntitiesModel {
 
     static async getById({id}) {
         try {
-            console.log(id)
             const entityName = 'financial_entity'
             const query = `
                 SELECT *

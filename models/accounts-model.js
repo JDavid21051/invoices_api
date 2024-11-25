@@ -23,7 +23,6 @@ export class AccountsModel {
             const result = await postgreSQLClient.query(query, values)
             return result.rows[0] ?? input
         } catch (error) {
-            console.log({error})
             throw new Error(error);
         }
     }
