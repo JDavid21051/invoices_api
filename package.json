@@ -7,7 +7,8 @@
     "start": "node api/index.js",
     "start:mysql": "node --watch server-with-mysql.js",
     "start:mongo": "node --watch api/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "create:module": "name=$npm_config_name && touch controllers/$name-cntl.js models/$name-model.js routes/$name-routes.js core/schemas/$name.schema.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "0.10.3",

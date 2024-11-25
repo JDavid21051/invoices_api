@@ -1,4 +1,3 @@
-import {safeCreateFE} from "../core/schemas/financialEntitiesScrema.js";
 import {safeCreateCategories} from "../core/schemas/categories.schema.js";
 
 export class CategoriesController {
