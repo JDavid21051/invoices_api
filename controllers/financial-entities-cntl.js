@@ -5,6 +5,8 @@ import {
     ENTITIES_DELETE_ERROR, ENTITIES_UPDATE_BAD_REQ, ENTITIES_UPDATE_ERROR, ENTITIES_GET_ERROR
 } from "../core/errors/modelues/financial-entities.errors.js";
 import {ENTITIES_DELETE_SUCCESS} from "../core/errors/modelues/financial-entities.message.js";
+import {StatusCodes} from "../core/lib/enums/https-status-code.js";
+import {serializeResponse} from "../core/lib/functions/serializer-response.js";
 
 export class FinancialEntitiesController {
     constructor({model}) {
@@ -13,7 +15,7 @@ export class FinancialEntitiesController {
 
     getAll = async (req, res) => {
         const eventsList = await this.fEntityModel.getAll()
-        res.json(eventsList)
+        res.status(StatusCodes.Ok).json(serializeResponse(eventsList, true, '', ''))
     }
 
     getById = async (req, res) => {
@@ -21,13 +23,13 @@ export class FinancialEntitiesController {
         if (params && params.id !== undefined && params.id !== null) {
             if (isValidNumber(params.id)) {
                 const result = await this.fEntityModel.getById({id: params.id})
-                if (!result) return res.status(404).json({message: ENTITIES_GET_ERROR})
-                return res.json(result)
+                if (!result) return res.status(StatusCodes.NotFound).json({message: ENTITIES_GET_ERROR})
+                return res.statusCode(StatusCodes.Ok).json(serializeResponse(result, true, '', ''))
             } else {
-                return res.status(404).json({message: ENTITIES_ID_BAD_TYPE})
+                return res.status(StatusCodes.NotFound).json({message: ENTITIES_ID_BAD_TYPE})
             }
         } else {
-            return res.status(404).json({message: ENTITIES_BAD_REQ})
+            return res.status(StatusCodes.NotFound).json({message: ENTITIES_BAD_REQ})
         }
     }
 
