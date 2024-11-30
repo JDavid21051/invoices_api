@@ -6,7 +6,7 @@ import {
 } from "../core/errors/modelues/financial-entities.errors.js";
 import {ENTITIES_DELETE_SUCCESS} from "../core/errors/modelues/financial-entities.message.js";
 import {StatusCodes} from "../core/lib/enums/https-status-code.js";
-import {serializeResponse} from "../core/lib/functions/serializer-response.js";
+import {failedSerializer, successSerializer} from "../core/lib/functions/serializer-response.js";
 
 export class FinancialEntitiesController {
     constructor({model}) {
@@ -15,7 +15,7 @@ export class FinancialEntitiesController {
 
     getAll = async (req, res) => {
         const eventsList = await this.fEntityModel.getAll()
-        res.status(StatusCodes.Ok).json(serializeResponse(eventsList, true, '', ''))
+        successSerializer(res, StatusCodes.Ok, eventsList)
     }
 
     getById = async (req, res) => {
@@ -23,21 +23,21 @@ export class FinancialEntitiesController {
         if (params && params.id !== undefined && params.id !== null) {
             if (isValidNumber(params.id)) {
                 const result = await this.fEntityModel.getById({id: params.id})
-                if (!result) return res.status(StatusCodes.NotFound).json({message: ENTITIES_GET_ERROR})
-                return res.statusCode(StatusCodes.Ok).json(serializeResponse(result, true, '', ''))
+                if (!result) return failedSerializer(res, StatusCodes.NotFound, ENTITIES_GET_ERROR)
+                successSerializer(res, StatusCodes.Ok, result)
             } else {
-                return res.status(StatusCodes.NotFound).json({message: ENTITIES_ID_BAD_TYPE})
+                return failedSerializer(res, StatusCodes.BadRequest, ENTITIES_ID_BAD_TYPE)
             }
         } else {
-            return res.status(StatusCodes.NotFound).json({message: ENTITIES_BAD_REQ})
+            return failedSerializer(res, StatusCodes.BadRequest, ENTITIES_BAD_REQ)
         }
     }
 
     create = async (req, res) => {
         const result = safeCreateFE(req.body)
-        if (!result.success) return res.status(400).json({error: JSON.parse(result.error.message)})
+        if (!result.success) return successSerializer(res, StatusCodes.BadRequest, result.error.message)
         const newEvent = await this.fEntityModel.create({input: result.data})
-        res.status(201).json(newEvent)
+        successSerializer(res, StatusCodes.Created, newEvent)
     }
 
     delete = async (req, res) => {
@@ -45,14 +45,14 @@ export class FinancialEntitiesController {
         if (params && params.id !== undefined && params.id !== null) {
             if (isValidNumber(params.id)) {
                 const result = await this.fEntityModel.delete({id: params.id})
-                if (result === false) return res.status(404).json({message: ENTITIES_DELETE_ERROR})
-                return res.json({message: ENTITIES_DELETE_SUCCESS})
+                if (result === false) failedSerializer(res, StatusCodes.NotFound, ENTITIES_DELETE_ERROR)
+                successSerializer(res, StatusCodes.Ok, [ENTITIES_DELETE_SUCCESS])
             } else {
-                return res.status(404).json({message: ENTITIES_ID_BAD_TYPE})
+                return failedSerializer(res, StatusCodes.BadRequest, ENTITIES_ID_BAD_TYPE)
             }
 
         } else {
-            return res.status(404).json({message: ENTITIES_BAD_REQ})
+            return failedSerializer(res, StatusCodes.BadRequest, ENTITIES_BAD_REQ)
         }
     }
 
@@ -60,16 +60,14 @@ export class FinancialEntitiesController {
         const result = safeUpdateFE(req.body)
 
         if (!result.success || Object.keys(result.data).length === 0) {
-            return res.status(400).json({message: ENTITIES_UPDATE_BAD_REQ})
+            return failedSerializer(res, StatusCodes.BadRequest, ENTITIES_UPDATE_BAD_REQ)
         }
 
         const {id} = req.params
-        if (!id) {
-            return res.status(404).json({message: ENTITIES_BAD_REQ})
-        }
+        if (!id) return failedSerializer(res, StatusCodes.BadRequest, ENTITIES_BAD_REQ)
 
         const updatedFEntity = await this.fEntityModel.update({id, input: result.data})
-        if (updatedFEntity === null) return res.status(404).json({message: ENTITIES_UPDATE_ERROR})
-        return res.json(updatedFEntity)
+        if (updatedFEntity === null) failedSerializer(res, StatusCodes.BadRequest, ENTITIES_UPDATE_ERROR)
+        successSerializer(res, StatusCodes.Ok, updatedFEntity)
     }
 }
