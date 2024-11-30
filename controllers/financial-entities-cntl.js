@@ -14,8 +14,8 @@ export class FinancialEntitiesController {
     }
 
     getAll = async (req, res) => {
-        const eventsList = await this.fEntityModel.getAll()
-        successSerializer(res, StatusCodes.Ok, eventsList)
+        const listData = await this.fEntityModel.getAll()
+        successSerializer(res, StatusCodes.Ok, listData)
     }
 
     getById = async (req, res) => {
@@ -36,8 +36,8 @@ export class FinancialEntitiesController {
     create = async (req, res) => {
         const result = safeCreateFE(req.body)
         if (!result.success) return successSerializer(res, StatusCodes.BadRequest, result.error.message)
-        const newEvent = await this.fEntityModel.create({input: result.data})
-        successSerializer(res, StatusCodes.Created, newEvent)
+        const newData = await this.fEntityModel.create({input: result.data})
+        successSerializer(res, StatusCodes.Created, newData)
     }
 
     delete = async (req, res) => {

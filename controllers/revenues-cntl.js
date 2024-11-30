@@ -6,14 +6,14 @@ export class RevenuesController {
     }
 
     getAll = async (req, res) => {
-        const eventsList = await this.revenuesModel.getAll()
-        res.json(eventsList)
+        const listData = await this.revenuesModel.getAll()
+        res.json(listData)
     }
     create = async (req, res) => {
         const result = safeCreateRevenues(req.body)
         if (!result.success) return res.status(400).json({error: JSON.parse(result.error.message)})
-        const newEvent = await this.revenuesModel.create({input: result.data})
-        res.status(201).json(newEvent)
+        const newData = await this.revenuesModel.create({input: result.data})
+        res.status(201).json(newData)
     }
 
 }

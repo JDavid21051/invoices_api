@@ -6,13 +6,13 @@ export class AccountsController {
     }
 
     getAll = async (req, res) => {
-        const eventsList = await this.accountsModel.getAll()
-        res.json(eventsList)
+        const listData = await this.accountsModel.getAll()
+        res.json(listData)
     }
     create = async (req, res) => {
         const result = safeCreateAccount(req.body)
         if (!result.success) return res.status(400).json({error: JSON.parse(result.error.message)})
-        const newEvent = await this.accountsModel.create({input: result.data})
-        res.status(201).json(newEvent)
+        const newData = await this.accountsModel.create({input: result.data})
+        res.status(201).json(newData)
     }
 }
