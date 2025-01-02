@@ -1,4 +1,6 @@
 import {safeCreateAccount} from "../core/schemas/accounts.schema.js";
+import {failedSerializer, successSerializer} from "../core/lib/functions/serializer-response.js";
+import {StatusCodes} from "../core/lib/enums/https-status-code.js";
 
 export class AccountsController {
     constructor({model}) {
@@ -7,12 +9,12 @@ export class AccountsController {
 
     getAll = async (req, res) => {
         const listData = await this.accountsModel.getAll()
-        res.json(listData)
+        successSerializer(res, StatusCodes.Created, listData)
     }
     create = async (req, res) => {
         const result = safeCreateAccount(req.body)
-        if (!result.success) return res.status(400).json({error: JSON.parse(result.error.message)})
+        if (!result.success) return failedSerializer(res, StatusCodes.BadRequest, result.error.message)
         const newData = await this.accountsModel.create({input: result.data})
-        res.status(201).json(newData)
+        successSerializer(res, StatusCodes.Created, newData)
     }
 }
