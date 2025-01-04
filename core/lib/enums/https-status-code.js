@@ -99,26 +99,45 @@ export const StatusCodes = Object.freeze({
      * Server sent this response to directing client to get requested resource to another URI with an GET request.
      */
     SeeOther: 303,
-    // 4xx Client Errors
+    // code 400
     BadRequest: 400,
+    // code 401
     Unauthorized: 401,
+    // code 402
     PaymentRequired: 402,
+    // code 403
     Forbidden: 403,
+    // code 404
     NotFound: 404,
+    // code 405
     MethodNotAllowed: 405,
+    // code 406
     NotAcceptable: 406,
+    // code 407
     ProxyAuthenticationRequired: 407,
+    // code 408
     RequestTimeout: 408,
+    // code 409
     Conflict: 409,
+    // code 410
     Gone: 410,
+    // code 411
     LengthRequired: 411,
+    // code 412
     PreconditionFailed: 412,
+    // code 413
     PayloadTooLarge: 413,
+    // code 414
     UriTooLong: 414,
+    // code 415
     UnsupportedMediaType: 415,
+    // code 416
     RangeNotSatisfiable: 416,
+    // code 417
     ExpectationFailed: 417,
+    // code 418
     ImATeapot: 418,
+    // code 421
     MisdirectedRequest: 421,
     UnprocessableEntity: 422,
     Locked: 423,
@@ -129,16 +148,26 @@ export const StatusCodes = Object.freeze({
     TooManyRequests: 429,
     RequestHeaderFieldsTooLarge: 431,
     UnavailableForLegalReasons: 451,
-    // 5xx Server Errors
+    // code 500
     InternalServerError: 500,
+    // code 501
     NotImplemented: 501,
+    // code 502
     BadGateway: 502,
+    // code 503
     ServiceUnavailable: 503,
+    // code 504
     GatewayTimeout: 504,
+    // code 505
     HttpVersionNotSupported: 505,
+    // code 506
     VariantAlsoNegotiates: 506,
+    // code 507
     InsufficientStorage: 507,
+    // code 508
     LoopDetected: 508,
+    // code 510
     NotExtended: 510,
+    // code 511
     NetworkAuthenticationRequired: 511,
 });

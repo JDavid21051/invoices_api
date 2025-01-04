@@ -1,0 +1,1 @@
+export const prefixBase64 = 'data:image/jpeg;base64,';

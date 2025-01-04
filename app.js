@@ -9,9 +9,11 @@ import {createCategoriesRouter} from "./routes/categories-routes.js";
 import {createAccountsRouter} from "./routes/accounts-routes.js";
 import {createRevenuesRouter} from "./routes/revenues-routes.js";
 import {ROOT_PAGE} from "./core/domain/root-page.js";
+import {createAuthRouter} from './routes/auth-routes.js';
 
 export const createApp = (
     {
+        authModel,
         financialEntitiesModel,
         categoriesModel,
         accountsModel,
@@ -25,10 +27,11 @@ export const createApp = (
     dotenv.config();
 
     app.use('/api/ping', createPingRouter())
+    app.use('/api/auth', createAuthRouter({ authModel: authModel }))
     app.use('/api/financial-entities', createFinancialEntitiesRouter({fEntitiesModel: financialEntitiesModel}))
     app.use('/api/categories', createCategoriesRouter({ categoriesModel: categoriesModel }))
     app.use('/api/accounts', createAccountsRouter({ accountsModel: accountsModel }))
-    app.use('/api/revenues', createRevenuesRouter({ accountsModel: revenuesModel }))
+    app.use('/api/revenues', createRevenuesRouter({ revenuesModel: revenuesModel }))
     app.get('/', (req, res) => res.send(ROOT_PAGE))
     app.get('**', (req, res) => res.send(ROOT_PAGE))
 
