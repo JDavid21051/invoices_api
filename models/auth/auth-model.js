@@ -59,7 +59,6 @@ export class AuthModel {
         try {
             const {token} = input
             const [_, tokenValue] = token.split(' ');
-            console.log(tokenValue);
             if (!tokenValue) return false;
             const entityName = 'user_access_control';
             const query = `
@@ -67,7 +66,6 @@ export class AuthModel {
                     FROM ${entityName}
                     WHERE access_token = $1 RETURNING *`
             const result = await postgreSQLClient.query(query, [tokenValue]);
-            console.log({result});
             return (result.rows.length > 0)
         } catch (error) {
             throw new Error('Error logging out');

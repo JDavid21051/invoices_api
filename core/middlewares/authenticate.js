@@ -6,17 +6,14 @@ export const authMiddleware = async (req, res, next) => {
     const JWT_SECRET = process.env.JWT_SECRET ?? 'tu-clave-secreta';
     try {
         const authHeader = req.headers?.authorization;
-        console.log(authHeader);
         if (!authHeader?.startsWith('JWT ')) {
             return failedSerializer(res, StatusCodes.Unauthorized, 'Unauthorised user')
         }
         const [_, token] = authHeader.split(' ');
         const decodedToken = jwt.verify(token, JWT_SECRET);
-        console.log({decodedToken});
         req.user = decodedToken;
         next();
     } catch (error) {
-        console.log({error});
         const errorResponse = {
             status: 500,
             body: {
