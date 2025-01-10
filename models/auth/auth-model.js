@@ -55,6 +55,25 @@ export class AuthModel {
         }
     }
 
+    static async logout({input}) {
+        try {
+            const {token} = input
+            const [_, tokenValue] = token.split(' ');
+            console.log(tokenValue);
+            if (!tokenValue) return false;
+            const entityName = 'user_access_control';
+            const query = `
+                    DELETE
+                    FROM ${entityName}
+                    WHERE access_token = $1 RETURNING *`
+            const result = await postgreSQLClient.query(query, [tokenValue]);
+            console.log({result});
+            return (result.rows.length > 0)
+        } catch (error) {
+            throw new Error('Error logging out');
+        }
+    }
+
     static async defUser() {
         try {
             const userResult = await AuthModel.getUserLogin()
@@ -71,32 +90,11 @@ export class AuthModel {
             const entered_at = result.rows[0].entered_at
             return {entered_at: entered_at};
         } catch (error) {
-            throw new Error('Error al ejecutar el script inicial')
+            throw new Error('Error executing the initial script')
         }
     }
 
     static async getUserById({id}) {
-       /* try {
-            const query = `
-                SELECT
-                    ${AuthModel.entityName}.id AS userId,
-                    ${AuthModel.entityName}.first_name AS firstName,
-                    ${AuthModel.entityName}.last_name AS lastName,
-                    ${AuthModel.entityName}.role AS role,
-                    ${AuthModel.entityName}.avatar AS avatar,
-                    ${AuthModel.entityName}_control.entered_at AS enteredAt,
-                    ${AuthModel.entityName}_control.updated_at AS updatedAt,
-                FROM ${AuthModel.entityName}
-                INNER JOIN ${AuthModel.entityName}_control
-                ON ${AuthModel.entityName}.id = ${AuthModel.entityName}_control.user_id
-                WHERE ${AuthModel.entityName}.id = $1`
-            const result = await postgreSQLClient.query(query, [id])
-            if (result.rows.length === 0) return null
-            const { userId, enteredAt, firstName, lastName, role, avatar, updatedAt } = result.rows[0]
-            return { userId, enteredAt, firstName, lastName, role, avatar, updatedAt }
-        } catch (error) {
-            throw new Error('error obtaining user data by id')
-        }*/
         try {
             const query = `
                 SELECT *

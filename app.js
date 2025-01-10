@@ -10,7 +10,6 @@ import {createAccountsRouter} from "./routes/accounts-routes.js";
 import {createRevenuesRouter} from "./routes/revenues-routes.js";
 import {ROOT_PAGE} from "./core/domain/root-page.js";
 import {createAuthRouter} from './routes/auth-routes.js';
-import cookieParser from 'cookie-parser';
 export const createApp = (
     {
         authModel,
@@ -23,8 +22,6 @@ export const createApp = (
     const app = express()
     app.use(json())
     app.use(corsMiddleware())
-    app.use(cookieParser())
-    app.disable('x-powered-by')
     dotenv.config();
 
     app.use('/api/ping', createPingRouter())

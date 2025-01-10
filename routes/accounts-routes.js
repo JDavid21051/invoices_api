@@ -7,5 +7,4 @@ export const createAccountsRouter = ({accountsModel}) => {
     accountsRouter.get('/', controller.getAll)
     accountsRouter.post('/', controller.create)
     return accountsRouter
-
 }

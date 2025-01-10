@@ -6,26 +6,11 @@ import {
     ENTITIES_BAD_REQ,
     ENTITIES_ID_BAD_TYPE,
 } from '../core/errors/modelues/financial-entities.errors.js';
+import {safeUserLogout} from '../core/schemas/auth/logout.schema.js';
 
 export class AuthController {
     constructor({model}) {
         this.authModel = model
-    }
-
-    login = async (req, res) => {
-        const result = safeUserLogin(req.body)
-        if (!result.success) return failedSerializer(res, StatusCodes.BadRequest, JSON.parse(result.error.message)[0].message)
-        const newData = await this.authModel.login({input: result.data})
-        if (!newData) return failedSerializer(res, StatusCodes.BadRequest, 'Error logging in')
-        return successSerializer(
-            res.cookie('token', newData.token, {
-                httpOnly: true,
-                secure: false,
-                maxAge: 1000 * 60 * 60,
-                sameSite: 'lax',
-            }),
-            StatusCodes.Created,
-            newData);
     }
 
     defUser = async (req, res) => {
@@ -35,8 +20,29 @@ export class AuthController {
         return successSerializer(res, StatusCodes.Created, newData)
     }
 
+    login = async (req, res) => {
+        const result = safeUserLogin(req.body)
+        if (!result.success) return failedSerializer(res, StatusCodes.BadRequest, JSON.parse(result.error.message)[0].message)
+        const newData = await this.authModel.login({input: result.data})
+        if (!newData) return failedSerializer(res, StatusCodes.BadRequest, 'Error logging in')
+        return successSerializer(res, StatusCodes.Created, newData);
+    }
+
+    logout = async (req, res) => {
+        const authHeader = req.headers?.authorization;
+        const result = safeUserLogout({token: authHeader})
+        if (!result.success) return failedSerializer(res, StatusCodes.BadRequest, 'Error logging out')
+        const response = await this.authModel.logout({input: result.data})
+        console.log({response});
+        return successSerializer(res, StatusCodes.Created, response);
+
+    }
+
     getById = async (req, res) => {
         const params = req.params
+        const headers = req.headers
+        console.log(headers)
+        console.log(req.get('Authorization'))
         if (params && params.id !== undefined && params.id !== null) {
             if (isValidNumber(params.id)) {
                 const result = await this.authModel.getUserById({id: params.id})

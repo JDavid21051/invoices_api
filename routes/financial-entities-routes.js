@@ -4,7 +4,6 @@ import {FinancialEntitiesController} from "../controllers/financial-entities-cnt
 export const createFinancialEntitiesRouter = ({fEntitiesModel}) => {
     const router = Router()
     const controller = new FinancialEntitiesController({model: fEntitiesModel})
-
     // list
     router.get('/', controller.getAll)
     // get
@@ -15,6 +14,5 @@ export const createFinancialEntitiesRouter = ({fEntitiesModel}) => {
     router.delete('/:id', controller.delete)
     // update
     router.patch('/:id', controller.update)
-
     return router
 }

@@ -19,12 +19,3 @@ export const failedSerializer = (res, code, message, error = 'Exception') => res
     error,
     message
 })
-
-/*
-
-export const failedSerializer = (message, error) => ({
-    data: null,
-    success: false,
-    error,
-    message
-})*/
