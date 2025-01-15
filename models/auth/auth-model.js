@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 
 export class AuthModel {
     static entityName = 'user_access'
+    static controlEntityName = 'user_access_control'
 
     static generateToken(secret, userId, firstName) {
         const accessToken = jwt.sign(
@@ -49,9 +50,8 @@ export class AuthModel {
                 secretKey,
                 {expiresIn: '6h'}
             )
-            const entityName = 'user_access_control'
             const sessionQuery = `
-                INSERT INTO ${entityName} (access_token, user_id, entered_at, updated_at, active, refresh_token)
+                INSERT INTO ${AuthModel.controlEntityName} (access_token, user_id, entered_at, updated_at, active, refresh_token)
                 VALUES ($2, $1, $3, NULL, $4, $5)
                 ON CONFLICT (user_id)
                 DO UPDATE SET 
@@ -81,10 +81,9 @@ export class AuthModel {
             const {token} = input
             const [_, tokenValue] = token.split(' ');
             if (!tokenValue) return false;
-            const entityName = 'user_access_control';
             const query = `
                     DELETE
-                    FROM ${entityName}
+                    FROM ${AuthModel.controlEntityName}
                     WHERE access_token = $1 RETURNING *`
             const result = await postgreSQLClient.query(query, [tokenValue]);
             return (result.rows.length > 0)
@@ -134,7 +133,6 @@ export class AuthModel {
             const {accessToken, refreshToken} = input
             const accessTokenValue = accessToken.split(' ')[1]
             const refreshTokenValue = refreshToken.split(' ')[1]
-            const entityName = 'user_access_control';
             const decodedToken = jwt.verify(refreshTokenValue, JWT_SECRET)
             if (!decodedToken) return null
             const registeredUser = await AuthModel.getUserLogin()
@@ -143,7 +141,7 @@ export class AuthModel {
             const {accessToken: newAccessToken, refreshToken: newRefreshToken} = AuthModel.generateToken(JWT_SECRET, user.id, user.first_name)
             const updateValues = [user.id, accessTokenValue, refreshTokenValue, newAccessToken, newRefreshToken, getLocaleDateTime()]
             const updateQuery = `
-                UPDATE ${entityName}
+                UPDATE ${AuthModel.controlEntityName}
                 SET access_token = $4, refresh_token = $5, updated_at = $6
                 WHERE user_id = $1 AND access_token = $2 AND refresh_token = $3 RETURNING *`
             const updateResult = await postgreSQLClient.query(updateQuery, updateValues)
