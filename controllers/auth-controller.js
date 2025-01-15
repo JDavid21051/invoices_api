@@ -7,6 +7,7 @@ import {
     ENTITIES_ID_BAD_TYPE,
 } from '../core/errors/modelues/financial-entities.errors.js';
 import {safeUserLogout} from '../core/schemas/auth/logout.schema.js';
+import {safeRefreshToken} from '../core/schemas/auth/refresh-token.schema.js';
 
 export class AuthController {
     constructor({model}) {
@@ -28,6 +29,16 @@ export class AuthController {
         return successSerializer(res, StatusCodes.Created, newData);
     }
 
+    refreshToken = async (req, res) => {
+        const resultValidation = safeRefreshToken(req.body)
+        if (!resultValidation.success) return failedSerializer(res, StatusCodes.BadRequest, JSON.parse(resultValidation.error.message)[0].message);
+        const newData = await this.authModel.refreshToken({input: resultValidation.data})
+        if (!newData) return failedSerializer(res, StatusCodes.BadRequest, 'Error refreshing token')
+        console.log({newData});
+
+        return successSerializer(res, StatusCodes.Created, newData);
+    }
+
     logout = async (req, res) => {
         const authHeader = req.headers?.authorization;
         const result = safeUserLogout({token: authHeader})
@@ -35,7 +46,6 @@ export class AuthController {
         const response = await this.authModel.logout({input: result.data})
         console.log({response});
         return successSerializer(res, StatusCodes.Created, response);
-
     }
 
     getById = async (req, res) => {

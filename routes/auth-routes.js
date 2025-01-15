@@ -9,6 +9,8 @@ export const createAuthRouter = ({authModel}) => {
     router.post('/bG9naW4tYXBw', controller.login)
     // def user
     router.post('/YWNjZXNzYXBw', controller.defUser)
+    // refresh token
+    router.post('/refresh-token', controller.refreshToken)
     // authMiddleware
     router.use(authMiddleware)
     // logout

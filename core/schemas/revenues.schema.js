@@ -1,8 +1,6 @@
 import z from "zod";
 import {RevenuesCategorySchema} from "../domain/enums/revenues.enum.js";
 
-
-
 const createRevenues = z.object({
     description: z.string({
         invalid_type_error: 'Revenues description must be a string',

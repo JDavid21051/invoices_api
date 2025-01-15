@@ -6,7 +6,21 @@ import avatar_base from '../../utils/avatar_base.js';
 import jwt from 'jsonwebtoken';
 
 export class AuthModel {
-    static entityName = 'user_access';
+    static entityName = 'user_access'
+
+    static generateToken(secret, userId, firstName) {
+        const accessToken = jwt.sign(
+            {id: userId, firstName: firstName},
+            secret,
+            {expiresIn: '1h'}
+        )
+        const refreshToken = jwt.sign(
+            {id: userId, firstName: firstName},
+            secret,
+            {expiresIn: '6h'}
+        )
+        return {accessToken, refreshToken}
+    }
 
     static async getUserLogin() {
         const query = `
@@ -25,32 +39,39 @@ export class AuthModel {
             const isValid = await bcrypt.compare(password, user['access_value'])
             if (!isValid) return null
             const secretKey = process.env.JWT_SECRET
-            const token = jwt.sign(
+            const accessToken = jwt.sign(
                 {id: user.id, first_name: user.first_name},
                 secretKey,
                 {expiresIn: '1h'}
             )
+            const refreshToken = jwt.sign(
+                {id: user.id, first_name: user.first_name},
+                secretKey,
+                {expiresIn: '6h'}
+            )
             const entityName = 'user_access_control'
             const sessionQuery = `
-                INSERT INTO ${entityName} (access_token, user_id, entered_at, updated_at, active)
-                VALUES ($2, $1, $3, NULL, $4)
+                INSERT INTO ${entityName} (access_token, user_id, entered_at, updated_at, active, refresh_token)
+                VALUES ($2, $1, $3, NULL, $4, $5)
                 ON CONFLICT (user_id)
                 DO UPDATE SET 
                     access_token = $2,
                     updated_at = $3,
-                    active = $4 
-                RETURNING *`
-            const sessionValues = [user.id, token, getLocaleDateTime(), true]
+                    active = $4,
+                    refresh_token = $5 RETURNING *`
+            const sessionValues = [user.id, accessToken, getLocaleDateTime(), true, refreshToken]
             const sessionResult = await postgreSQLClient.query(sessionQuery, sessionValues)
             if (sessionResult.rows.length === 0) return null
             const newRegisteredUser = sessionResult.rows[0]
             return {
-                entered_at: newRegisteredUser.entered_at,
-                updated_at: newRegisteredUser.updated_at,
-                user_id: newRegisteredUser.user_id,
-                token
+                enteredAt: newRegisteredUser['entered_at'],
+                updatedAt: newRegisteredUser['updated_at'],
+                userId: newRegisteredUser['user_id'],
+                accessToken,
+                refreshToken
             }
         } catch (error) {
+            console.log({error});
             throw new Error('Error logging in');
         }
     }
@@ -104,6 +125,40 @@ export class AuthModel {
             return { userId, entered_at, first_name, last_name, role, avatar: prefixBase64 + avatar }
         } catch (error) {
             throw new Error('error obtaining user data by id')
+        }
+    }
+
+    static async refreshToken({input}) {
+        try {
+            const JWT_SECRET = process.env.JWT_SECRET ?? 'tu-clave-secreta';
+            const {accessToken, refreshToken} = input
+            const accessTokenValue = accessToken.split(' ')[1]
+            const refreshTokenValue = refreshToken.split(' ')[1]
+            const entityName = 'user_access_control';
+            const decodedToken = jwt.verify(refreshTokenValue, JWT_SECRET)
+            if (!decodedToken) return null
+            const registeredUser = await AuthModel.getUserLogin()
+            if (registeredUser.length === 0) return null
+            const user = registeredUser[0]
+            const {accessToken: newAccessToken, refreshToken: newRefreshToken} = AuthModel.generateToken(JWT_SECRET, user.id, user.first_name)
+            const updateValues = [user.id, accessTokenValue, refreshTokenValue, newAccessToken, newRefreshToken, getLocaleDateTime()]
+            const updateQuery = `
+                UPDATE ${entityName}
+                SET access_token = $4, refresh_token = $5, updated_at = $6
+                WHERE user_id = $1 AND access_token = $2 AND refresh_token = $3 RETURNING *`
+            const updateResult = await postgreSQLClient.query(updateQuery, updateValues)
+            console.log({updateResult});
+            if (updateResult.rows.length === 0) return null
+            return {
+                enteredAt: updateResult.rows[0]['entered_at'],
+                updatedAt: updateResult.rows[0]['updated_at'],
+                userId: updateResult.rows[0]['user_id'],
+                accessToken: updateResult.rows[0]['access_token'],
+                refreshToken: updateResult.rows[0]['refresh_token']
+            }
+        } catch (error) {
+            console.log({error});
+            throw new Error('Error refreshing token')
         }
     }
 
