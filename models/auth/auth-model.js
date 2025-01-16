@@ -4,6 +4,7 @@ import {getLocaleDateTime} from '../../utils/locale-datetime.js';
 import {prefixBase64} from '../../utils/prefix-base64.js';
 import avatar_base from '../../utils/avatar_base.js';
 import jwt from 'jsonwebtoken';
+import {ACCESS_SECRET, JWT_SECRET, SALT_ROUND} from '../../config.js';
 
 export class AuthModel {
     static entityName = 'user_access'
@@ -39,15 +40,14 @@ export class AuthModel {
             const user = registeredUser[0]
             const isValid = await bcrypt.compare(password, user['access_value'])
             if (!isValid) return null
-            const secretKey = process.env.JWT_SECRET
             const accessToken = jwt.sign(
                 {id: user.id, first_name: user.first_name},
-                secretKey,
+                JWT_SECRET,
                 {expiresIn: '1h'}
             )
             const refreshToken = jwt.sign(
                 {id: user.id, first_name: user.first_name},
-                secretKey,
+                JWT_SECRET,
                 {expiresIn: '6h'}
             )
             const sessionQuery = `
@@ -71,7 +71,6 @@ export class AuthModel {
                 refreshToken
             }
         } catch (error) {
-            console.log({error});
             throw new Error('Error logging in');
         }
     }
@@ -96,17 +95,16 @@ export class AuthModel {
         try {
             const userResult = await AuthModel.getUserLogin()
             if (userResult.length > 0) return null
-            const accessValue = process.env.ACCESS
-            const saltRounds = Number(process.env.SALT_ROUND)
-            const passwordHash = await bcrypt.hash(accessValue, saltRounds)
+            const saltRounds = Number(SALT_ROUND)
+            const passwordHash = await bcrypt.hash(ACCESS_SECRET, saltRounds)
             const values = [passwordHash, getLocaleDateTime(), 'David', 'Pelaez', 0, avatar_base]
             const query = `
                 INSERT INTO ${AuthModel.entityName} (access_value, entered_at, first_name, last_name, role, avatar )
                 VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`
             const result = await postgreSQLClient.query(query, values)
             if (result.rows.length === 0) return null
-            const entered_at = result.rows[0].entered_at
-            return {entered_at: entered_at};
+            const entered_at = result.rows[0]['entered_at']
+            return {enteredAt: entered_at};
         } catch (error) {
             throw new Error('Error executing the initial script')
         }
@@ -121,7 +119,7 @@ export class AuthModel {
             const result = await postgreSQLClient.query(query, [id])
             if (result.rows.length === 0) return null
             const { id: userId, entered_at, first_name, last_name, role, avatar } = result.rows[0]
-            return { userId, entered_at, first_name, last_name, role, avatar: prefixBase64 + avatar }
+            return { userId, enteredAt: entered_at, firstName: first_name, lastName: last_name, role, avatar: prefixBase64 + avatar }
         } catch (error) {
             throw new Error('error obtaining user data by id')
         }
@@ -129,7 +127,6 @@ export class AuthModel {
 
     static async refreshToken({input}) {
         try {
-            const JWT_SECRET = process.env.JWT_SECRET ?? 'tu-clave-secreta';
             const {accessToken, refreshToken} = input
             const accessTokenValue = accessToken.split(' ')[1]
             const refreshTokenValue = refreshToken.split(' ')[1]
@@ -145,7 +142,6 @@ export class AuthModel {
                 SET access_token = $4, refresh_token = $5, updated_at = $6
                 WHERE user_id = $1 AND access_token = $2 AND refresh_token = $3 RETURNING *`
             const updateResult = await postgreSQLClient.query(updateQuery, updateValues)
-            console.log({updateResult});
             if (updateResult.rows.length === 0) return null
             return {
                 enteredAt: updateResult.rows[0]['entered_at'],
@@ -155,7 +151,6 @@ export class AuthModel {
                 refreshToken: updateResult.rows[0]['refresh_token']
             }
         } catch (error) {
-            console.log({error});
             throw new Error('Error refreshing token')
         }
     }

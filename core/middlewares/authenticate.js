@@ -1,17 +1,17 @@
 import {failedSerializer} from '../lib/functions/serializer-response.js';
 import {StatusCodes} from '../lib/enums/https-status-code.js';
 import jwt from 'jsonwebtoken';
+import {JWT_SECRET} from '../../config.js';
 
 export const authMiddleware = async (req, res, next) => {
-    const JWT_SECRET = process.env.JWT_SECRET ?? 'tu-clave-secreta';
     try {
         const authHeader = req.headers?.authorization;
         if (!authHeader?.startsWith('JWT ')) {
             return failedSerializer(res, StatusCodes.Unauthorized, 'Unauthorised user')
         }
         const [_, token] = authHeader.split(' ');
-        const decodedToken = jwt.verify(token, JWT_SECRET);
-        req.user = decodedToken;
+        const {id, first_name, iat, exp} = jwt.verify(token, JWT_SECRET);
+        req.user = {id, firstName: first_name, iat, exp};
         next();
     } catch (error) {
         const errorResponse = {
