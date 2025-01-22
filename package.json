@@ -8,7 +8,9 @@
     "start:mysql": "node --watch server-with-mysql.js",
     "start:mongo": "node --watch api/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "create:module": "name=$npm_config_name && touch controllers/$name-cntl.js models/$name-model.js routes/$name-routes.js _queires/$name.http"
+    "create:module": "name=$npm_config_name && touch controllers/$name-cntl.js models/$name-model.js routes/$name-routes.js _queires/$name.http",
+    "deploy:dev": "vercel",
+    "deploy:prod": "vercel --prod"
   },
   "dependencies": {
     "@neondatabase/serverless": "0.10.3",
