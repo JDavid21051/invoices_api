@@ -40,11 +40,11 @@ export class AuthController {
     }
 
     logout = async (req, res) => {
-        const authHeader = req.headers?.authorization;
-        const result = safeUserLogout({token: authHeader})
+        const result = safeUserLogout(req.body)
         if (!result.success) return failedSerializer(res, StatusCodes.BadRequest, 'Error logging out')
         const response = await this.authModel.logout({input: result.data})
         console.log({response});
+        if (!response) return failedSerializer(res, StatusCodes.BadRequest, 'Error logging out')
         return successSerializer(res, StatusCodes.Created, response);
     }
 
